@@ -69,8 +69,17 @@ class WSApiTest:
         username = input("Wealthsimple username (email): ")
         session = keyring.get_password(f"{keyring_service_name}.{username}", "session")
         if session:
-            session = WSAPISession.from_json(session)
+            try:
+                # 3a. Use the save session to instantiate the API object
+                ws = WealthsimpleAPI.from_token(session, persist_session_fct, username)
+                # persist_session_fct is needed here, because the session may be updated if the access token expired, and thus this function will be called to save the new session
+            except Exception as e:
+                print(f"Error trying to use stored tokens: {e}")
+                session = None
+                # Continue below with a regular log-in
+
         if not session:
+            # 3b. Need to log-in interactively
             username = None
             password = None
             otp_answer = None
@@ -95,10 +104,8 @@ class WSApiTest:
                     print("Login failed. Try again.")
                     username = None
                     password = None
-    
-        # 3. Use the session object to instantiate the API object
-        ws = WealthsimpleAPI.from_token(session, persist_session_fct, username)
-        # persist_session_fct is needed here too, because the session may be updated if the access token expired, and thus this function will be called to save the new session
+            # Use the new session object to instantiate the API object
+            ws = WealthsimpleAPI.from_token(session, persist_session_fct, username)
         
         # Optionally define functions to cache market data, if you want transactions' descriptions and accounts balances to show the security's symbol instead of its ID
         # eg. sec-s-e7947deb977341ff9f0ddcf13703e9a6 => TSX:XEQT
