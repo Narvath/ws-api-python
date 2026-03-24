@@ -96,7 +96,7 @@ class WSApiTest:
                     WealthsimpleAPI.login(username, password, otp_answer, persist_session_fct=persist_session_fct)
                     # The above will throw exceptions if login failed
                     # So we break (out of the login "while True" loop) on success:
-                    session = WSAPISession.from_json(keyring.get_password(keyring_service_name, "session"))
+                    session = WSAPISession.from_json(keyring.get_password(f"{keyring_service_name}.{username}", "session"))
                     break
                 except OTPRequiredException:
                     otp_answer = input("TOTP code: ")
