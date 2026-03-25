@@ -8,7 +8,7 @@ from ws_api import WealthsimpleAPI, OTPRequiredException, LoginFailedException, 
 class WSApiTest:
     def main(self):
         # 1. Define a function that will be called when the session is created or updated. Persist the session to a safe place, like in the keyring
-        keyring_service_name = "foo.bar"
+        keyring_service_name = "wealthsimple.api"
         persist_session_fct = lambda sess, uname: keyring.set_password(f"{keyring_service_name}.{uname}", "session", sess)
         # The session contains tokens that can be used to empty your Wealthsimple account, so treat it with respect!
         # i.e. don't store it in a Git repository, or anywhere it can be accessed by others!
@@ -31,7 +31,6 @@ class WSApiTest:
 
         if not session:
             # 3b. Need to log-in interactively
-            username = None
             password = None
             otp_answer = None
             while True:
